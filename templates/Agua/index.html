@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Clientes Próximos a Vencer</title>
+    <link href={% static 'cliente_plantilla/css/styles.css' %} rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">LOGO</div>
+            <div class="hamburger" onclick="toggleMenu()">
+                &#9776;
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'inicio' %}">Inicio</a></li>
+                <li><a href="{% url 'listar_productos' %}">Productos</a></li>
+                <li><a href="{% url 'cargar_cliente' %}">Crear Cliente</a></li>
+                <li><a href="{% url 'listar_clientes' %}">Lista Clientes</a></li>
+                <li><a href="{% url 'crear_producto' %}">Crear Producto</a></li>
+                <li><a href="{% url 'crear_venta_producto' %}">Venta Producto</a></li>
+                <li><a href="{% url 'listar_ventas' %}">Listar ventas calle</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="buttons">
+            <!-- AQUI SE DEBE DE CAMBIAR A BOTONES-->
+            <a href="{% url 'listar_clientes' %}"class="dropdown-item" >Listar Cliente</a>
+            <a href="{% url 'cargar_cliente' %}"class="dropdown-item" >Cargar Cliente</a>
+        </div>
+
+        <h1>Lista de Clientes Próximos a Cobrar</h1>
+        
+        <div class="client-list">
+            {% for promo in listar_promos %}
+                <a href={% url 'menu_cliente'  id=promo.cliente.id %} class="client">
+                    <p><strong>Nombre:</strong> {{ promo.cliente.nombre }}</p>
+                    <p><strong>Apellido:</strong> {{ promo.cliente.apellido }}</p>
+                    <p><strong>Promocion:</strong> {{ promo.promo.nombre_promo }}</p>
+                    <p><strong>Dirección:</strong> {{ promo.cliente.direccion }}</p>
+                    <p><strong>Fecha de Cobro:</strong> {{ promo.fecha_pago_promo }}</p>
+                    {% if promo in promos_con_fecha_vencida %}
+                        <div class="alert alert-warning">
+                            ¡Atención! La fecha de cobro para este cliente ha vencido.
+                        </div>
+                    {% endif %}
+                </a>
+                {% empty %}
+                    <h4>No hay registros</h4>
+            {% endfor %}
+        </div>
+        
+        
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

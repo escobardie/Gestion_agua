@@ -1,0 +1,298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Cliente</title>
+    <link href="{% static 'cliente_plantilla/css/styles.css' %}" rel="stylesheet">
+    <style>
+        /* Estilos adicionales para los botones */
+        .client-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .client-actions button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .client-actions button:hover {
+            background-color: #0056b3;
+        }
+
+        .view-data-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .view-data-button button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .view-data-button button:hover {
+            background-color: #218838;
+        }
+
+        /* Estilo para el botón deshabilitado */
+        .servis-visita-button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+            color: #ccc;  /* Cambiar el color del texto a gris claro */
+        }
+        .client-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .client-info h2, .client-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .client-details, .promo-table, .bidon-details {
+            margin-bottom: 20px;
+        }
+        
+        .promo-table table, .bidon-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .promo-table th, .bidon-details th, .promo-table td, .bidon-details td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        
+        .promo-table th, .bidon-details th {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .promo-table td, .bidon-details td {
+            text-align: center;
+        }
+        
+        input[type="radio"] {
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 768px) {
+            .promo-table, .bidon-details {
+                overflow-x: auto;
+            }
+        }
+        .client-details {
+            background-color: #f8f9fa; /* Fondo claro */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+            max-width: 400px; /* Ancho máximo para ajustar el contenido */
+            margin: 20px auto;
+        }
+        
+        .client-details p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333; /* Color del texto */
+        }
+        
+        .client-name {
+            color: #007bff; /* Color azul para destacar el nombre */
+            font-weight: bold; /* Negrita */
+        }
+        
+        .client-address {
+            color: #6c757d; /* Color gris para la dirección */
+            font-style: italic; /* Estilo cursiva para diferenciar */
+        }
+        
+        .client-signup-date {
+            color: #28a745; /* Color verde para la fecha */
+            font-weight: bold;
+            background-color: #e9f7ef; /* Fondo suave para destacar la fecha */
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">LOGO</div>
+            <div class="hamburger" onclick="toggleMenu()">
+                &#9776;
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'inicio' %}">Inicio</a></li>
+                <li><a href="{% url 'listar_clientes' %}">Lista Clientes</a></li>
+                <li><a href="{% url 'listar_visitas' id=cliente.id %}">Visitas</a></li>
+                <li><a href="#">Cobros</a></li> <!-- Reemplaza con URL adecuada -->
+                <li><a href="#">Promociones</a></li> <!-- Reemplaza con URL adecuada -->
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Detalle del Cliente</h1>
+        <div class="client-info">
+            <h2>Información del Cliente</h2>
+            <div class="client-details">
+                <p><strong>Cliente:</strong> <span class="client-name">{{ cliente.nombre }} {{ cliente.apellido }}</span></p>
+                <p><strong>Dirección:</strong> <span class="client-address"> {{ cliente.direccion }}</span></p>
+                <p><strong>Fecha de Alta:</strong> <span class="client-signup-date"> {{ cliente.fecha_alta }}</span></p>
+            </div>     
+        
+            <h3>Promociones Disponibles</h3>
+            <div class="promo-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Nombre de la Promoción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for promo in promociones %}
+                        <tr>
+                            <td>
+                                <input 
+                                    type="radio" 
+                                    name="promo_seleccionada" 
+                                    value="{{ promo.id }}" 
+                                    data-bidones-disponibles="{{ promo.bidones_disponibles }}" 
+                                    data-entrega-bidones="{{ promo.entrega_bidones }}" 
+                                    data-retorno-bidones="{{ promo.retorno_bidones }}" 
+                                    data-bidones-acumulados="{{ promo.bidones_acumulados }}" 
+                                    onchange="updateBidonDetails(this); updateUrlAndButtons('{{ promo.id }}')">
+                            </td>
+                            <td>{{ promo.promo.nombre_promo }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2">No hay promociones disponibles</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        
+            <h3>Detalle de Bidones</h3>
+            <div class="bidon-details">
+                <table>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Valor</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Seleccionar promocion</strong></td>
+                        <td>0</td>
+                    </tr>
+
+                </table>
+            </div>
+
+        </div>
+        
+        <div class="client-actions">
+            <button id="ver-visitas-btn" onclick="location.href='{% url 'listar_visitas' id=cliente.id %}'">Ver Visitas</button>
+            <button id="cargar-visita-btn" onclick="location.href='{% url 'cargar_visita' id=cliente.id %}'">Cargar Visita</button>
+            <button 
+                id="servis-visita-btn"
+                class="servis-visita-button"
+                disabled>
+                Servis Visita
+            </button>
+            <button 
+                {% comment %} id="cargar-promocion-btn" {% endcomment %}
+                onclick="location.href='{% url 'promo_por_cliente' id=cliente.id %}'"
+                class="servis-visita-button">
+                Cargar Promoción
+            </button>
+            <button onclick="location.href='{% url 'crear_venta_producto_cliente' id=cliente.id %}'">Venta</button>
+            <button onclick="location.href='{% url 'listar_venta_cliente' id=cliente.id %}'">Venta Realizadas</button>
+            <button onclick="location.href='{% url 'crear_pago_cliente' id=cliente.id %}'">Nuevo Pago</button>
+            <button onclick="location.href='{% url 'listar_pago_cliente' id=cliente.id %}'">Pagos Realizados</button>
+            
+        </div>
+
+        <div class="view-data-button">
+            <button>Ver Datos Cliente</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+
+        function updateUrlAndButtons(promoId) {
+            const servisVisitaBtn = document.getElementById('servis-visita-btn');
+            {% comment %} const cargarPromocionBtn = document.getElementById('cargar-promocion-btn'); {% endcomment %}
+
+            if (promoId) {
+                servisVisitaBtn.removeAttribute('disabled');
+                servisVisitaBtn.setAttribute('onclick', `location.href='{% url 'servis_visita' pk=cliente.id %}?id_promo=${promoId}'`);
+            } else {
+                servisVisitaBtn.setAttribute('disabled', 'disabled');
+            }
+        }
+        function updateBidonDetails(radioButton) {
+            const bidonDisponibles = radioButton.getAttribute('data-bidones-disponibles');
+            const entregaBidones = radioButton.getAttribute('data-entrega-bidones');
+            const retornoBidones = radioButton.getAttribute('data-retorno-bidones');
+            const bidonesAcumulados = radioButton.getAttribute('data-bidones-acumulados');
+    
+            const bidonDetailsTable = document.querySelector('.bidon-details table');
+    
+            // Actualiza los valores en la tabla
+            bidonDetailsTable.innerHTML = `
+                <tr>
+                    <th>Descripción</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td><strong>Bidones Disponibles:</strong></td>
+                    <td>${bidonDisponibles}</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Bidones en Domicilio:</strong></td>
+                    <td>${bidonesAcumulados}</td>
+                </tr>
+            `;
+        }
+
+        // Reiniciar la selección de promociones y actualizar botones en cada carga de página
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Deseleccionar todos los radio buttons
+            const radios = document.querySelectorAll('input[name="promo_seleccionada"]');
+            radios.forEach(radio => radio.checked = false);
+            
+            // Actualizar el botón Servis Visita como deshabilitado
+            updateUrlAndButtons(null);
+        });
+    </script>
+</body>
+</html>
